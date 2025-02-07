@@ -96,3 +96,44 @@ As the attack escalates, the server becomes overloaded, leading to timeouts and 
 
 This log analysis demonstrates how **SYN flood attacks** disrupt normal network traffic. By using Wireshark, analysts can **identify abnormal traffic patterns**, distinguish between legitimate and malicious packets, and implement **mitigation strategies** to protect network resources.
 
+# SYN Flood Attack: Log Analysis
+
+The following log entries capture a **SYN flood attack**, where a malicious actor floods the web server with SYN requests, causing network congestion and service disruption.
+
+## Log Entries
+
+| Color  | No. | Time      | Source         | Destination   | Protocol | Info |
+|--------|----|-----------|----------------|---------------|----------|------|
+| green  | 63  | 4.097363  | 198.51.100.5   | 192.0.2.1     | TCP      | 33638->443 [SYN] Seq=0 Win-5792 Len=120... |
+| red    | 64  | 4.176295  | 192.0.2.1      | 203.0.113.0   | TCP      | 443->54770 [SYN, ACK] Seq=0 Win-5792 Len=120... |
+| green  | 65  | 4.255227  | 192.0.2.1      | 198.51.100.5  | TCP      | 443->33638 [SYN, ACK] Seq=0 Win-5792 Len=120... |
+| red    | 66  | 4.256159  | 203.0.113.0    | 192.0.2.1     | TCP      | 54770->443 [SYN] Seq=0 Win=5792 Len=0... |
+| green  | 67  | 5.235091  | 198.51.100.5   | 192.0.2.1     | TCP      | 33638->443 [ACK] Seq=1 Win-5792 Len=120... |
+| red    | 68  | 5.236023  | 203.0.113.0    | 192.0.2.1     | TCP      | 54770->443 [SYN] Seq=0 Win=5792 Len=0... |
+| yellow | 77  | 7.330577  | 192.0.2.1      | 198.51.100.5  | TCP      | HTTP/1.1 504 Gateway Time-out (text/html) |
+| red    | 78  | 7.331323  | 203.0.113.0    | 192.0.2.1     | TCP      | 54770->443 [SYN] Seq=0 Win=5792 Len=0... |
+| green  | 79  | 7.340768  | 198.51.100.22  | 192.0.2.1     | TCP      | 6345->443 [SYN] Seq=0 Win=5792 Len=0... |
+| yellow | 80  | 7.340773  | 192.0.2.1      | 198.51.100.7  | TCP      | 443->42584 [RST, ACK] Seq=1 Win-5792 Len=120... |
+| red    | 81  | 7.340778  | 203.0.113.0    | 192.0.2.1     | TCP      | 54770->443 [SYN] Seq=0 Win=5792 Len=0... |
+| red    | 83  | 7.439658  | 192.0.2.1      | 203.0.113.0   | TCP      | 443->54770 [RST, ACK] Seq=1 Win=5792 Len=0... |
+
+## Impact of the SYN Flood Attack
+
+As more **SYN requests** flood the server, it struggles to process legitimate employee traffic. The rows **highlighted in yellow** indicate failed communications between employees and the server.
+
+### **Common Errors Found in the Log**
+
+1. **HTTP/1.1 504 Gateway Time-out (text/html)**  
+   - This occurs when the **gateway server waits too long** for a response from the web server. If the server does not respond, the gateway server sends a timeout error to the browser.
+
+2. **[RST, ACK] Packets**  
+   - These packets are sent when a **SYN, ACK** response is not received by the server.  
+   - The visitor's browser will **time out**, forcing them to refresh and attempt a new connection.
+
+## Final Observations
+
+By **log entry 125**, the web server stops responding entirely, and only logs from the attack remain. This confirms a **direct DoS SYN flood attack** originating from **one attacker IP address** (`203.0.113.0`).
+
+---
+
+This analysis shows how SYN flood attacks exploit the TCP handshake process to overload a web server. Using tools like **Wireshark**, analysts can detect abnormal traffic patterns and mitigate attacks before they escalate.
